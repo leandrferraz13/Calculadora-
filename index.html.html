@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Calculadora Pro | Design Moderno</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Fundo animado com partículas e gradiente dinâmico */
+    .animated-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -2;
+        background: linear-gradient(125deg, #0a0e27 0%, #1a1f3a 50%, #0f172a 100%);
+    }
+
+    .gradient-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background: radial-gradient(circle at 20% 50%, rgba(0, 255, 200, 0.15), transparent 50%),
+                    radial-gradient(circle at 80% 80%, rgba(100, 80, 255, 0.2), transparent 50%);
+        animation: pulseGlow 6s ease-in-out infinite;
+    }
+
+    @keyframes pulseGlow {
+        0%, 100% { opacity: 0.6; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.05); }
+    }
+
+    /* Partículas flutuantes */
+    .particles {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+
+    .particle {
+        position: absolute;
+        background: rgba(0, 255, 200, 0.4);
+        border-radius: 50%;
+        pointer-events: none;
+        animation: float particle 8s infinite ease-in-out;
+        filter: blur(2px);
+    }
+
+    @keyframes float {
+        0% {
+            transform: translateY(100vh) rotate(0deg);
+            opacity: 0;
+        }
+        10% {
+            opacity: 0.6;
+        }
+        90% {
+            opacity: 0.6;
+        }
+        100% {
+            transform: translateY(-20vh) rotate(360deg);
+            opacity: 0;
+        }
+    }
+
+    /* Container principal com efeito glassmorphism */
+    .calculator-container {
+        background: rgba(15, 20, 35, 0.75);
+        backdrop-filter: blur(15px);
+        border-radius: 40px;
+        padding: 25px;
+        box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3),
+                    0 0 0 1px rgba(0, 255, 200, 0.1),
+                    inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        width: 340px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .calculator-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 30px 55px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Header com relógio e info */
+    .calculator-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(0, 255, 200, 0.3);
+    }
+
+    .clock-container {
+        display: flex;
+        gap: 8px;
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: 2px;
+    }
+
+    .clock-number {
+        background: rgba(0, 0, 0, 0.5);
+        padding: 5px 10px;
+        border-radius: 12px;
+        color: #00ffcc;
+        text-shadow: 0 0 5px rgba(0, 255, 200, 0.5);
+        font-family: 'Courier New', monospace;
+        backdrop-filter: blur(4px);
+    }
+
+    .date-badge {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: 400;
+        letter-spacing: 0.5px;
+    }
+
+    /* Display com efeito neon */
+    .display-wrapper {
+        margin-bottom: 20px;
+        position: relative;
+    }
+
+    .display {
+        width: 100%;
+        height: 80px;
+        font-size: 36px;
+        padding: 15px 20px;
+        text-align: right;
+        border: none;
+        border-radius: 25px;
+        background: rgba(0, 0, 0, 0.6);
+        color: #00ffcc;
+        font-weight: 500;
+        letter-spacing: 2px;
+        backdrop-filter: blur(4px);
+        box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3), 0 1px 0 rgba(255, 255, 255, 0.05);
+        transition: all 0.2s ease;
+        font-family: 'Courier New', monospace;
+    }
+
+    .display:focus {
+        outline: none;
+        box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3), 0 0 0 2px rgba(0, 255, 200, 0.3);
+    }
+
+    /* Teclado grid */
+    .buttons-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+    }
+
+    /* Botões com design profissional */
+    .btn {
+        padding: 16px 0;
+        font-size: 20px;
+        font-weight: 600;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        background: rgba(30, 35, 55, 0.8);
+        backdrop-filter: blur(4px);
+        color: #e0e0e0;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        transition: left 0.3s ease;
+    }
+
+    .btn:hover::before {
+        left: 100%;
+    }
+
+    .btn:hover {
+        background: rgba(45, 50, 75, 0.9);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn:active {
+        transform: translateY(1px);
+    }
+
+    /* Botões especiais */
+    .btn-operator {
+        background: rgba(0, 150, 200, 0.3);
+        color: #00e5ff;
+        border-bottom: 2px solid rgba(0, 255, 200, 0.4);
+    }
+
+    .btn-operator:hover {
+        background: rgba(0, 180, 230, 0.4);
+        color: #33ffff;
+    }
+
+    .btn-equals {
+        background: linear-gradient(135deg, #00b894, #0095e8);
+        color: white;
+        box-shadow: 0 4px 12px rgba(0, 184, 148, 0.3);
+    }
+
+    .btn-equals:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(0, 184, 148, 0.4);
+        background: linear-gradient(135deg, #00d1a0, #00aaff);
+    }
+
+    .btn-clear {
+        background: rgba(220, 53, 69, 0.3);
+        color: #ff6b6b;
+    }
+
+    .btn-clear:hover {
+        background: rgba(220, 53, 69, 0.5);
+        color: #ff8a8a;
+    }
+
+    .btn-zero {
+        grid-column: span 2;
+    }
+
+    /* Indicador de operação */
+    .operation-indicator {
+        text-align: right;
+        font-size: 12px;
+        color: rgba(0, 255, 200, 0.6);
+        margin-top: 5px;
+        padding-right: 10px;
+        letter-spacing: 1px;
+    }
+
+    /* Animações de feedback */
+    @keyframes buttonPop {
+        0% { transform: scale(1); }
+        50% { transform: scale(0.95); }
+        100% { transform: scale(1); }
+    }
+
+    .btn-click {
+        animation: buttonPop 0.1s ease;
+    }
+
+    /* Responsividade */
+    @media (max-width: 400px) {
+        .calculator-container {
+            width: 320px;
+            padding: 20px;
+        }
+        .btn {
+            padding: 14px 0;
+            font-size: 18px;
+        }
+        .display {
+            font-size: 32px;
+            height: 70px;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="animated-bg"></div>
+<div class="gradient-overlay"></div>
+<div class="particles" id="particles"></div>
+
+<div class="calculator-container">
+    <div class="calculator-header">
+        <div class="clock-container">
+            <span class="clock-number" id="hours">00</span>
+            <span style="color:#00ffcc;">:</span>
+            <span class="clock-number" id="minutes">00</span>
+            <span style="color:#00ffcc;">:</span>
+            <span class="clock-number" id="seconds">00</span>
+        </div>
+        <div class="date-badge" id="dateBadge"></div>
+    </div>
+
+    <div class="display-wrapper">
+        <input type="text" id="display" class="display" value="0" readonly>
+        <div class="operation-indicator" id="opIndicator"></div>
+    </div>
+
+    <div class="buttons-grid">
+        <button class="btn btn-clear" data-action="clear">AC</button>
+        <button class="btn" data-op="%">%</button>
+        <button class="btn" data-op="backspace">⌫</button>
+        <button class="btn btn-operator" data-op="/">÷</button>
+
+        <button class="btn" data-num="7">7</button>
+        <button class="btn" data-num="8">8</button>
+        <button class="btn" data-num="9">9</button>
+        <button class="btn btn-operator" data-op="*">×</button>
+
+        <button class="btn" data-num="4">4</button>
+        <button class="btn" data-num="5">5</button>
+        <button class="btn" data-num="6">6</button>
+        <button class="btn btn-operator" data-op="-">−</button>
+
+        <button class="btn" data-num="1">1</button>
+        <button class="btn" data-num="2">2</button>
+        <button class="btn" data-num="3">3</button>
+        <button class="btn btn-operator" data-op="+">+</button>
+
+        <button class="btn btn-zero" data-num="0">0</button>
+        <button class="btn" data-num=".">.</button>
+        <button class="btn btn-equals" data-action="equals">=</button>
+    </div>
+</div>
+
+<script>
+    // === Elementos DOM ===
+    const display = document.getElementById('display');
+    const opIndicator = document.getElementById('opIndicator');
+    
+    // Estado da calculadora
+    let currentInput = '0';
+    let previousInput = '';
+    let operation = null;
+    let waitingForOperand = false;
+    let shouldResetDisplay = false;
+
+    // Atualizar display
+    function updateDisplay() {
+        display.value = currentInput;
+    }
+
+    // Adicionar número
+    function inputNumber(num) {
+        if (waitingForOperand || shouldResetDisplay) {
+            currentInput = num;
+            waitingForOperand = false;
+            shouldResetDisplay = false;
+        } else {
+            if (num === '.' && currentInput.includes('.')) return;
+            if (currentInput === '0' && num !== '.') {
+                currentInput = num;
+            } else {
+                currentInput += num;
+            }
+        }
+        updateDisplay();
+        updateOperationIndicator();
+    }
+
+    // Adicionar ponto decimal
+    function inputDecimal() {
+        if (waitingForOperand) {
+            currentInput = '0.';
+            waitingForOperand = false;
+        } else if (!currentInput.includes('.')) {
+            currentInput += '.';
+        }
+        updateDisplay();
+    }
+
+    // Limpar tudo
+    function clearAll() {
+        currentInput = '0';
+        previousInput = '';
+        operation = null;
+        waitingForOperand = false;
+        shouldResetDisplay = false;
+        updateDisplay();
+        updateOperationIndicator();
+    }
+
+    // Backspace
+    function backspace() {
+        if (waitingForOperand || shouldResetDisplay) return;
+        if (currentInput.length > 1) {
+            currentInput = currentInput.slice(0, -1);
+        } else {
+            currentInput = '0';
+        }
+        updateDisplay();
+    }
+
+    // Porcentagem
+    function percentage() {
+        let value = parseFloat(currentInput);
+        if (isNaN(value)) return;
+        currentInput = (value / 100).toString();
+        updateDisplay();
+        waitingForOperand = false;
+    }
+
+    // Definir operação
+    function setOperation(op) {
+        if (operation !== null && !waitingForOperand) {
+            calculate();
+        }
+        previousInput = currentInput;
+        operation = op;
+        waitingForOperand = true;
+        updateOperationIndicator();
+    }
+
+    // Calcular resultado
+    function calculate() {
+        if (operation === null || waitingForOperand) return;
+        
+        const prev = parseFloat(previousInput);
+        const current = parseFloat(currentInput);
+        
+        if (isNaN(prev) || isNaN(current)) return;
+        
+        let result;
+        switch (operation) {
+            case '+':
+                result = prev + current;
+                break;
+            case '-':
+                result = prev - current;
+                break;
+            case '*':
+                result = prev * current;
+                break;
+            case '/':
+                if (current === 0) {
+                    display.value = "Erro";
+                    setTimeout(() => {
+                        if (display.value === "Erro") {
+                            clearAll();
+                        }
+                    }, 1500);
+                    return;
+                }
+                result = prev / current;
+                break;
+            default:
+                return;
+        }
+        
+        // Arredondamento para evitar decimais excessivos
+        result = Math.round(result * 1000000) / 1000000;
+        currentInput = result.toString();
+        operation = null;
+        waitingForOperand = true;
+        shouldResetDisplay = true;
+        updateDisplay();
+        updateOperationIndicator();
+    }
+
+    // Atualizar indicador de operação
+    function updateOperationIndicator() {
+        if (operation && previousInput) {
+            const opSymbol = operation === '*' ? '×' : operation === '/' ? '÷' : operation;
+            opIndicator.textContent = `${previousInput} ${opSymbol}`;
+        } else {
+            opIndicator.textContent = '';
+        }
+    }
+
+    // Efeito de clique nos botões
+    function addClickEffect(button) {
+        button.classList.add('btn-click');
+        setTimeout(() => {
+            button.classList.remove('btn-click');
+        }, 150);
+    }
+
+    // Manipular eventos dos botões
+    function handleButtonClick(event) {
+        const button = event.currentTarget;
+        addClickEffect(button);
+        
+        // Números
+        if (button.dataset.num !== undefined) {
+            const num = button.dataset.num;
+            if (num === '.') {
+                inputDecimal();
+            } else {
+                inputNumber(num);
+            }
+        }
+        // Operadores
+        else if (button.dataset.op !== undefined) {
+            const op = button.dataset.op;
+            if (op === 'backspace') {
+                backspace();
+            } else if (op === '%') {
+                percentage();
+            } else {
+                let mappedOp = op;
+                if (mappedOp === '÷') mappedOp = '/';
+                if (mappedOp === '×') mappedOp = '*';
+                setOperation(mappedOp);
+            }
+        }
+        // Ações especiais
+        else if (button.dataset.action !== undefined) {
+            const action = button.dataset.action;
+            if (action === 'clear') {
+                clearAll();
+            } else if (action === 'equals') {
+                calculate();
+            }
+        }
+    }
+
+    // Inicializar botões
+    function initButtons() {
+        const buttons = document.querySelectorAll('.btn');
+        buttons.forEach(btn => {
+            btn.addEventListener('click', handleButtonClick);
+        });
+    }
+
+    // Teclado suporte
+    function handleKeyboard(event) {
+        const key = event.key;
+        const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        const operators = {
+            '+': '+', '-': '-', '*': '*', '/': '/', 'Enter': '=',
+            '=': '=', '%': '%', 'Backspace': '⌫', 'Delete': 'AC'
+        };
+        
+        if (numbers.includes(key)) {
+            event.preventDefault();
+            inputNumber(key);
+        } else if (key === '.') {
+            event.preventDefault();
+            inputDecimal();
+        } else if (key === '+' || key === '-' || key === '*' || key === '/') {
+            event.preventDefault();
+            setOperation(key);
+        } else if (key === 'Enter' || key === '=') {
+            event.preventDefault();
+            calculate();
+        } else if (key === '%') {
+            event.preventDefault();
+            percentage();
+        } else if (key === 'Backspace') {
+            event.preventDefault();
+            backspace();
+        } else if (key === 'Delete' || key === 'Escape') {
+            event.preventDefault();
+            clearAll();
+        }
+    }
+
+    // === Relógio digital aprimorado ===
+    function updateClock() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        
+        document.getElementById('hours').textContent = hours;
+        document.getElementById('minutes').textContent = minutes;
+        document.getElementById('seconds').textContent = seconds;
+        
+        // Data formatada
+        const options = { day: '2-digit', month: 'short' };
+        const dateStr = now.toLocaleDateString('pt-BR', options);
+        document.getElementById('dateBadge').textContent = dateStr;
+    }
+    
+    // === Partículas animadas ===
+    function createParticles() {
+        const particlesContainer = document.getElementById('particles');
+        const particleCount = 50;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            const size = Math.random() * 6 + 2;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.animationDelay = `${Math.random() * 15}s`;
+            particle.style.animationDuration = `${Math.random() * 8 + 6}s`;
+            particle.style.background = `rgba(${Math.random() * 100 + 100}, ${Math.random() * 200 + 55}, 200, ${Math.random() * 0.4 + 0.2})`;
+            particlesContainer.appendChild(particle);
+        }
+    }
+    
+    // Animar gradiente de fundo suave com requestAnimationFrame
+    let hue = 0;
+    function animateGradient() {
+        const overlay = document.querySelector('.gradient-overlay');
+        if (overlay) {
+            hue = (hue + 0.2) % 360;
+            const color1 = `hsla(${hue}, 80%, 55%, 0.15)`;
+            const color2 = `hsla(${hue + 40}, 70%, 50%, 0.1)`;
+            overlay.style.background = `radial-gradient(circle at 30% 40%, ${color1}, transparent 60%),
+                                        radial-gradient(circle at 80% 70%, ${color2}, transparent 70%)`;
+        }
+        requestAnimationFrame(animateGradient);
+    }
+    
+    // Prevenir erro de eval (segurança extra - trocamos eval por cálculo controlado)
+    // A calculadora já está usando lógica matemática direta, sem eval
+    
+    // Inicialização completa
+    function init() {
+        initButtons();
+        updateClock();
+        setInterval(updateClock, 1000);
+        createParticles();
+        animateGradient();
+        window.addEventListener('keydown', handleKeyboard);
+        
+        // Garantir que o display comece com 0
+        currentInput = '0';
+        updateDisplay();
+        
+        // Tooltip / dica visual
+        console.log('Calculadora Pro carregada - Use teclado numérico também!');
+    }
+    
+    // Iniciar tudo quando o DOM estiver pronto
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+</script>
+</body>
+</html>
